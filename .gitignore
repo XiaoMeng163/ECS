@@ -1,0 +1,36 @@
+# Unity 自动生成的缓存和临时文件
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+UserSettings/
+
+# 构建输出
+[Bb]uild/
+[Bb]uilds/
+
+# 调试和性能分析文件
+MemoryCaptures/
+Recordings/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 日志和临时文件
+*.log
+*.tmp
