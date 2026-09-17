@@ -9,6 +9,9 @@ public class MyGridAuthoring : MonoBehaviour
 
     public float NodeSize = 1f;
 
+    [Header("不可达节点层级")]
+    public LayerMask InaccessibleNodes;     
+
     public class MyGridBaker : Baker<MyGridAuthoring>
     {
         public override void Bake(MyGridAuthoring authoring)
@@ -26,6 +29,7 @@ public class MyGridAuthoring : MonoBehaviour
                 NodeXCount = (int)(authoring.GridSize.x / authoring.NodeSize),
                 NodeYCount = (int)(authoring.GridSize.y / authoring.NodeSize),
                 NodeSize = authoring.NodeSize,
+                InaccessibleLayerMask = authoring.InaccessibleNodes.value   //保存不可达层级的位掩码
             };
 
             AddComponent(entity, grid);
@@ -50,12 +54,11 @@ public class MyGridAuthoring : MonoBehaviour
                         {
                             X = x,
                             Y = y,
+                            IsAccessible = true
                         }
                     };
                 }
             }
-
-            
 
         }
 

@@ -4,13 +4,16 @@ using Unity.Entities;
 using UnityEngine;
 
 /// <summary>
-/// 网格组件，描述的是整个网格
+/// 网格组件，描述的是整个网格，挂载在全局唯一的GridEntity上
 /// </summary>
 public struct MyASGrid : IComponentData
 {
     public int NodeXCount;
     public int NodeYCount;
     public float NodeSize;
+
+    /// <summary> 障碍物层 </summary>
+    public int InaccessibleLayerMask;
 }
 
 /// <summary>

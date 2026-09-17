@@ -19,6 +19,12 @@ namespace Athomield.AStar
         /// <summary>每个节点的边长（越小精度越高，但节点数量呈平方增长）</summary>
         public float mNodeSize;
 
+        /// <summary>不可通行节点的物理层（障碍物层），此层碰撞体覆盖的节点会被标记为不可通行</summary>
+        public LayerMask InaccessibleNodes;
+
+        /// <summary>惩罚节点的物理层（惩罚区域层），此层碰撞体覆盖的节点会增加寻路代价</summary>
+        public LayerMask PenaltyNodes;
+        
         /// <summary>
         /// Baker 内部类：将 GridAuthoring 参数烘焙为 ECS 单例组件，并初始化网格节点数组
         /// </summary>
@@ -27,12 +33,15 @@ namespace Athomield.AStar
             public override void Bake(GridAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
+                
                 // 根据网格尺寸和节点大小计算节点数量
                 ASGrid grid = new ASGrid
                 {
                     NodeXCount = (int)math.round(authoring.mGridSize.x / authoring.mNodeSize),
                     NodeYCount = (int)math.round(authoring.mGridSize.y / authoring.mNodeSize),
                     NodeSize = authoring.mNodeSize,
+                    InaccessibleLMIndex = authoring.InaccessibleNodes.value,    // LayerMask 转 int
+                    PenaltyLMIndex = authoring.PenaltyNodes.value,
                 };
 
                 // 添加 Grid 核心组件

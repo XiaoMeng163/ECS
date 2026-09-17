@@ -36,13 +36,11 @@ namespace ECSDemo
         public void OnUpdate(ref SystemState state)
         {
             // Allocator.Temp：最廉价的分配方式，当前帧结束自动释放
-            // Allocator.TempJob 给 Job 使用 可以存在更长时间
-            // Allocator.Persistent 可以跨帧长期存在 需要手动释放
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             // Unity.Mathematics.Random：Burst 兼容的随机数（值类型，非 System.Random）
             // CreateFromIndex 内部会对 index 做哈希，避免低种子值的相关性问题
-            uint seed = (uint)math.max(1, (int)(SystemAPI.Time.ElapsedTime * 10000) + 1);   //把当前运行时间变成一个不断变化的整数。根据当前运行时间生成一个不断变化的随机种子，并保证种子至少为 1。
+            uint seed = (uint)math.max(1, (int)(SystemAPI.Time.ElapsedTime * 10000) + 1);
             var random = Random.CreateFromIndex(seed);
 
             // WithEntityAccess()：在 Query 结果中额外获取 Entity 本身（用于后续销毁）
@@ -63,14 +61,11 @@ namespace ECSDemo
                         random.NextFloat(-r, r),
                         random.NextFloat(-r, r),
                         random.NextFloat(-r, r));
-
                     ecb.SetComponent(newEntity, LocalTransform.FromPosition(pos));
 
-                    // 设置随机速度（覆盖 Baker 赋的零速度） 
-                    //setcomponent 给刚刚生成的 Entity 设置 MoveVelocityComponent 的数据。
+                    // 设置随机速度（覆盖 Baker 赋的零速度）
                     ecb.SetComponent(newEntity, new MoveVelocityComponent
                     {
-                        //NextFloat3Direction返回一个：随机的三维方向向量。
                         Value = random.NextFloat3Direction() * random.NextFloat(2f, 6f)
                     });
                 }

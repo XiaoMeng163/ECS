@@ -32,7 +32,7 @@ namespace ECSDemo
         {
             // 创建 Job 结构体，传入不依赖 Entity 的外部数据（deltaTime）
             var job = new MoveJob { DeltaTime = SystemAPI.Time.DeltaTime };
-            
+
             // ScheduleParallel：把 Job 分发到线程池并行执行
             // （如果改成 Schedule() 则单线程执行；Run() 则在主线程立即执行）
             job.ScheduleParallel();

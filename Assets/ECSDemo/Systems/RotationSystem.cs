@@ -24,8 +24,6 @@ namespace ECSDemo
     public partial struct RotationSystem : ISystem
     {
         // OnCreate：系统首次创建时调用（类似 Start，但在 ECS 世界层面）
-        // [BurstCompile] 是 Unity Burst 编译器的标记，用来把一部分 C# 代码编译成高性能的本机机器码。
-        // 它主要用于 ECS、Job System、数学计算等大量重复执行的逻辑，例如大量单位移动、寻路、碰撞计算。相比普通 C# 执行，通常会更快
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -53,7 +51,6 @@ namespace ECSDemo
                 // ValueRO：获取只读的组件值
                 transform.ValueRW = transform.ValueRO.RotateY(
                     speed.ValueRO.RadiansPerSecond * deltaTime);
-                
             }
         }
     }

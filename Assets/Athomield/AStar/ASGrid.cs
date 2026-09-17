@@ -18,6 +18,18 @@ namespace Athomield.AStar
         /// <summary>Y 方向节点数量 = Height / NodeSize（四舍五入）</summary>
         public int NodeYCount;
         
+        /// <summary>
+        /// 不可通行层的 LayerMask 值（int 类型）。
+        /// 此层上的碰撞体会将对应节点标记为 IsAccessible = false
+        /// </summary>
+        public int InaccessibleLMIndex;
+
+        /// <summary>
+        /// 惩罚层的 LayerMask 值（int 类型）。
+        /// 此层上的碰撞体会给节点增加 Penalty，使寻路算法尽量绕开该区域
+        /// </summary>
+        public int PenaltyLMIndex;
+        
         /// <summary>每个节点的边长（世界单位），决定网格精度</summary>
         public float NodeSize;
         
@@ -65,6 +77,12 @@ namespace Athomield.AStar
         /// H = 14 * min(dx,dy) + 10 * abs(dx-dy)
         /// </summary>
         public int HCost;
+        
+        /// <summary>
+        /// 地形惩罚值，由 CheckObstaclesSystem 高斯模糊后写入。
+        /// 值越大，A* 算法越倾向于绕开该节点（但不是不可通行）
+        /// </summary>
+        public int Penalty;
         
         /// <summary>节点相等判断：坐标相同即视为同一节点</summary>
         public bool Equals(ASNode other)
