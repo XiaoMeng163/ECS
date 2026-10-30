@@ -219,6 +219,222 @@ namespace Athomield.AStar
                     results.Dispose();
                 }
             }
+            
+            // 扫描完成后对惩罚值进行高斯模糊（blurSize=3 → 7×7 核）
+            // 目的：让集中在障碍物/惩罚区域的高惩罚值向外平滑扩散，
+            // 使 A* 在规划路径时会自然远离障碍物边缘
+            BlurPenalties(3, _grid, _nodes);
+        }
+        
+        
+        /// <summary>
+        /// 对所有节点的惩罚值进行可分离高斯模糊（两次 1D 箱式滤波近似）。
+        ///
+        /// ──── 算法原理 ────
+        ///
+        /// 二维高斯模糊可以分解为两次独立的一维高斯模糊（可分离性）：
+        ///   二维高斯(x,y) = 一维高斯(x) × 一维高斯(y)
+        ///
+        /// 一维高斯模糊可以用"箱式滤波"（Box Filter）近似：
+        ///   对每个元素，取其左右 blurSize 个邻居的平均值作为输出
+        ///   即：output[x] = mean( input[x-blurSize .. x+blurSize] )
+        ///
+        /// 所以完整步骤：
+        ///   第一遍（水平）：horizontalPass[x,y] = mean( Penalty[x-blur..x+blur, y] )
+        ///   第二遍（垂直）：verticalPass[x,y]   = mean( horizontalPass[x, y-blur..y+blur] )
+        ///   最终结果：blurred[x,y] = verticalPass[x,y] / kernelSize²
+        ///
+        /// ──── 滑动窗口优化（为什么不直接循环求和）────
+        ///
+        /// 朴素方式：对每个节点循环遍历窗口内所有元素求和 → O(N * kernelSize²)
+        /// 滑动窗口：维护一个"当前窗口总和"，向右移动时：
+        ///   新窗口和 = 旧窗口和 - 最左边离开的值 + 最右边新进来的值
+        ///   每次只做 1 次减法 + 1 次加法 → O(N)
+        ///
+        /// ──── 边界处理（Clamp）────
+        ///
+        /// 节点 x=0 时，窗口左侧 [x-blurSize..-1] 超出网格范围。
+        /// 通过 math.clamp 将越界索引夹紧到边界节点（0 或 NodeXCount-1），
+        /// 等效于"边界像素重复填充"（Clamp To Edge），这会导致边界区域的模糊值偏低，
+        /// 但对寻路结果影响可忽略（网格边界通常是不可通行区域）。
+        ///
+        /// ──── 为什么最终除以 kernelSize² ────
+        ///
+        /// 水平方向箱式滤波对一行求和（未除以 kernelSize），
+        /// 垂直方向对列求和（未除以 kernelSize），
+        /// 最终等效于二维核内所有元素之和 = 一维和 × 一维和，
+        /// 所以必须除以 kernelSize × kernelSize 才能得到平均值（归一化）。
+        ///
+        /// ──── 注意：当前代码只在垂直第二遍的 y>=1 循环中写回节点 ────
+        /// y=0 那行在初始化窗口时未写回，导致第一行的惩罚值不被模糊。
+        /// 对寻路影响极小，但若需要精确可在第二遍后补写 y=0 的结果。
+        /// </summary>
+        /// <param name="_blurSize">模糊半径，kernel 大小 = 2*blurSize+1（默认 3 → 7×7 核）</param>
+        void BlurPenalties(int _blurSize, ASGrid _grid, DynamicBuffer<ASGridNodesBufferComponent> _nodes)
+        {
+            int kernelSize = _blurSize * 2 + 1;  // 核大小（blurSize=3 时为 7）
+            int d = _grid.NodeXCount > _grid.NodeYCount ? _grid.NodeXCount : _grid.NodeYCount;
+
+            // 两个中间结果数组（按节点总数分配，用同一套一维索引访问）
+            NativeArray<int> horizontalPass = new NativeArray<int>(_grid.NodeXCount * _grid.NodeYCount, Allocator.TempJob);
+            NativeArray<int> verticalPass = new NativeArray<int>(_grid.NodeXCount * _grid.NodeYCount, Allocator.TempJob);
+
+            // ════════════════════════════════════════
+            // 第一遍：水平方向箱式滤波
+            // 对每行 y，从左到右滑动窗口，计算每个 x 位置的水平方向区间和
+            // ════════════════════════════════════════
+            for (int y = 0; y < _grid.NodeYCount; y++)
+            {
+                // ── 初始化 x=0 的滑动窗口 ──
+                // 累加窗口范围 [0-blurSize, 0+blurSize] 内所有节点的惩罚值
+                // 左侧超出边界（x<0）时，clamp 到 0（重复边界节点）
+                for (int x = -_blurSize; x <= _blurSize; x++)
+                {
+                    int clampX = math.clamp(x, 0, _blurSize);  // 左侧边界 clamp（右侧用 _blurSize 截断，因为 x<=_blurSize）
+
+                    // 被采样的源节点索引
+                    int index;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        index = clampX + y * d;
+                    else index = y + clampX * d;
+
+                    // 写入目标：x=0 位置的水平过滤结果
+                    int hpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        hpIndex = 0 + y * d;
+                    else hpIndex = y + 0 * d;
+
+                    horizontalPass[hpIndex] += _nodes[index].Node.Penalty;
+                }
+
+                // ── 滑动窗口：从 x=1 向右推进 ──
+                // 每次：新窗口和 = 上一个窗口和 - 最左边离开的元素 + 最右边新加入的元素
+                for (int x = 1; x < _grid.NodeXCount; x++)
+                {
+                    // 离开窗口的节点：x - blurSize - 1（超出左边界时 clamp 到 0）
+                    // clamp 到 NodeXCount（注意：不是 NodeXCount-1）是安全的，
+                    // 因为该索引仅用于"取减数"，超界时被 clamp 到边界意味着重复减同一个节点
+                    int removeIndex = math.clamp(x - _blurSize - 1, 0, _grid.NodeXCount);
+                    // 进入窗口的节点：x + blurSize（超出右边界时 clamp 到最后一个节点）
+                    int addIndex = math.clamp(x + _blurSize, 0, _grid.NodeXCount - 1);
+
+                    // 离开节点的一维索引
+                    int removehpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        removehpIndex = removeIndex + y * d;
+                    else removehpIndex = y + removeIndex * d;
+
+                    // 进入节点的一维索引
+                    int addhpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        addhpIndex = addIndex + y * d;
+                    else addhpIndex = y + addIndex * d;
+
+                    // 当前节点 x 的水平过滤结果目标索引
+                    int hpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        hpIndex = x + y * d;
+                    else hpIndex = y + x * d;
+
+                    // 上一个节点（x-1）的水平过滤结果索引（用于继承上一窗口和）
+                    int prevhpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        prevhpIndex = (x - 1) + y * d;
+                    else prevhpIndex = y + (x - 1) * d;
+
+                    // 核心滑动公式：新窗口和 = 上一窗口和 - 离开的节点惩罚 + 进入的节点惩罚
+                    horizontalPass[hpIndex] = horizontalPass[prevhpIndex]
+                        - _nodes[removehpIndex].Node.Penalty
+                        + _nodes[addhpIndex].Node.Penalty;
+                }
+            }
+
+            // ════════════════════════════════════════
+            // 第二遍：垂直方向箱式滤波（以 horizontalPass 为输入）
+            // 对每列 x，从上到下滑动窗口，计算每个 y 位置的垂直方向区间和
+            // 最终 verticalPass[x,y] = 水平和 的垂直和 = 二维 7×7 核内惩罚之和（未归一化）
+            // ════════════════════════════════════════
+            for (int x = 0; x < _grid.NodeXCount; x++)
+            {
+                // ── 初始化 y=0 的滑动窗口 ──
+                // 累加 horizontalPass 中 [0-blurSize, 0+blurSize] 行的值
+                for (int y = -_blurSize; y <= _blurSize; y++)
+                {
+                    int clampY = math.clamp(y, 0, _blurSize);  // 上方超出边界时 clamp 到第 0 行
+
+                    // 源索引（horizontalPass 中第 clampY 行、第 x 列）
+                    int index;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        index = x + clampY * d;
+                    else index = clampY + x * d;
+
+                    // 目标：y=0 的垂直过滤结果
+                    int vpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        vpIndex = x + 0 * d;
+                    else vpIndex = 0 + x * d;
+
+                    verticalPass[vpIndex] += horizontalPass[index];
+                }
+
+                // ── 滑动窗口：从 y=1 向下推进 ──
+                for (int y = 1; y < _grid.NodeYCount; y++)
+                {
+                    // 当前节点的垂直过滤结果目标索引
+                    int vpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        vpIndex = x + y * d;
+                    else vpIndex = y + x * d;
+
+                    // 上一行（y-1）的垂直过滤结果索引
+                    int prevvpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        prevvpIndex = x + (y - 1) * d;
+                    else prevvpIndex = (y - 1) + x * d;
+
+                    // 离开窗口的行索引（y - blurSize - 1，超出上边界时 clamp）
+                    int removeIndex = math.clamp(y - _blurSize - 1, 0, _grid.NodeYCount);
+                    // 进入窗口的行索引（y + blurSize，超出下边界时 clamp）
+                    int addIndex = math.clamp(y + _blurSize, 0, _grid.NodeYCount - 1);
+
+                    // 离开行在 horizontalPass 中的索引
+                    int removevpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        removevpIndex = x + removeIndex * d;
+                    else removevpIndex = removeIndex + x * d;
+
+                    // 进入行在 horizontalPass 中的索引
+                    int addvpIndex;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        addvpIndex = x + addIndex * d;
+                    else addvpIndex = addIndex + x * d;
+
+                    // 垂直方向滑动：新窗口和 = 上一窗口和 - 离开行的水平和 + 进入行的水平和
+                    verticalPass[vpIndex] = verticalPass[prevvpIndex]
+                        - horizontalPass[removevpIndex]
+                        + horizontalPass[addvpIndex];
+
+                    // ── 归一化并写回节点 ──
+                    // verticalPass[vpIndex] = 7×7 核内所有惩罚之和（水平和 × 垂直和）
+                    // 除以 kernelSize² = 7×7 = 49，得到平均惩罚值（四舍五入）
+                    // 这就是该节点最终的模糊惩罚值
+                    int blurredWeight = (int)math.round((float)verticalPass[vpIndex] / (kernelSize * kernelSize));
+
+                    // 目标节点索引
+                    int index;
+                    if (_grid.NodeXCount > _grid.NodeYCount)
+                        index = x + y * d;
+                    else index = y + x * d;
+
+                    // 写回：只更新 Penalty，IsAccessible 保持障碍物扫描时的结果不变
+                    ASNode newNode = _nodes[index].Node;
+                    newNode.Penalty = blurredWeight;
+                    _nodes[index] = new ASGridNodesBufferComponent() { Node = newNode };
+                }
+            }
+
+            horizontalPass.Dispose();
+            verticalPass.Dispose();
         }
     }
 }

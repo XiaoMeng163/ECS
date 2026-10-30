@@ -398,6 +398,16 @@ PrefabInstance:
       propertyPath: GridWireColor.r
       value: 0.003921569
       objectReference: {fileID: 0}
+    - target: {fileID: 7955317179988422967, guid: a9d796b92e6ff994eb7c8471e97775d7,
+        type: 3}
+      propertyPath: MaxPenalty
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955317179988422967, guid: a9d796b92e6ff994eb7c8471e97775d7,
+        type: 3}
+      propertyPath: ShowPenalties
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7329014905735041891, guid: a9d796b92e6ff994eb7c8471e97775d7, type: 3}
     m_RemovedGameObjects: []

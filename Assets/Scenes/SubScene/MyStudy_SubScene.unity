@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 974071155}
   - component: {fileID: 974071154}
   - component: {fileID: 974071153}
-  - component: {fileID: 974071152}
+  - component: {fileID: 974071157}
   m_Layer: 3
   m_Name: Obstacle
   m_TagString: Untagged
@@ -248,19 +248,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &974071152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 974071151}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11d22ae926ba465ba28e93ed745d2262, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PenaltyOnObstacle: 50
 --- !u!65 &974071153
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -347,6 +334,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &974071157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974071151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1048873032
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,7 +358,7 @@ GameObject:
   - component: {fileID: 1048873036}
   - component: {fileID: 1048873035}
   - component: {fileID: 1048873034}
-  - component: {fileID: 1048873033}
+  - component: {fileID: 1048873038}
   m_Layer: 3
   m_Name: Obstacle (2)
   m_TagString: Untagged
@@ -367,19 +366,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1048873033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1048873032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11d22ae926ba465ba28e93ed745d2262, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PenaltyOnObstacle: 50
 --- !u!65 &1048873034
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -466,6 +452,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1048873038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048873032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1084675343
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,6 +543,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridSize: {x: 80, y: 80}
   NodeSize: 1
+  InaccessibleNodes:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!4 &1295842715
 Transform:
   m_ObjectHideFlags: 0
@@ -572,8 +573,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c1820e8aaa8d2642833affe9755f21a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridColor: {r: 0.07058824, g: 0.101960786, b: 0.18039216, a: 1}
-  WireColor: {r: 0.003921569, g: 0.015686275, b: 0.047058824, a: 1}
+  GridColor: {r: 0.26633143, g: 0.5943396, b: 0.4195519, a: 1}
+  WireColor: {r: 0, g: 0, b: 0, a: 1}
   blockedColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1908028058
 GameObject:
@@ -587,7 +588,7 @@ GameObject:
   - component: {fileID: 1908028062}
   - component: {fileID: 1908028061}
   - component: {fileID: 1908028060}
-  - component: {fileID: 1908028059}
+  - component: {fileID: 1908028064}
   m_Layer: 3
   m_Name: Obstacle (3)
   m_TagString: Untagged
@@ -595,19 +596,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1908028059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1908028058}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11d22ae926ba465ba28e93ed745d2262, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PenaltyOnObstacle: 50
 --- !u!65 &1908028060
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -694,6 +682,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1908028064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1908028058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2103699114
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,7 +706,7 @@ GameObject:
   - component: {fileID: 2103699118}
   - component: {fileID: 2103699117}
   - component: {fileID: 2103699116}
-  - component: {fileID: 2103699115}
+  - component: {fileID: 2103699120}
   m_Layer: 3
   m_Name: Obstacle (1)
   m_TagString: Untagged
@@ -714,19 +714,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2103699115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2103699114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11d22ae926ba465ba28e93ed745d2262, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PenaltyOnObstacle: 50
 --- !u!65 &2103699116
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -813,14 +800,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2103699120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103699114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1084675345}
   - {fileID: 1295842715}
+  - {fileID: 336342729}
+  - {fileID: 974071156}
   - {fileID: 2103699119}
   - {fileID: 1048873037}
   - {fileID: 1908028063}
-  - {fileID: 336342729}
-  - {fileID: 974071156}

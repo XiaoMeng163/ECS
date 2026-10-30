@@ -33,6 +33,21 @@ namespace Athomield.AStar
 
         /// <summary>是否绘制网格节点（true = 绘制所有节点的填充方块和线框）</summary>
         [SerializeField] bool ShowGrid;
+        
+        /// <summary>
+        /// 是否以灰度热力图显示节点的惩罚值。
+        /// 颜色计算：penC = Penalty / MaxPenalty，灰度 = (penC, penC, penC)。
+        /// 惩罚越高越白，越低越黑。仅在 Play Mode 下有效（CheckObstaclesSystem 才会填充惩罚值）。
+        /// </summary>
+        [SerializeField]
+        bool ShowPenalties;
+        
+        /// <summary>
+        /// 惩罚热力图的参考最大值，用于归一化显示。
+        /// 将 Penalty / MaxPenalty 映射到 [0,1] 作为灰度。
+        /// 设置为场景中最大惩罚值可获得最佳对比度（过小则所有节点显示为白色）。
+        /// </summary>
+        [SerializeField] private int MaxPenalty;
 
         /// <summary>
         /// Unity 的 Gizmos 绘制回调，每帧（包括 Editor 中）均会调用。
@@ -43,6 +58,9 @@ namespace Athomield.AStar
             // 懒初始化 EntityManager（在 Editor 中 World 可能尚未创建，需保护）
             if (mEntityManager == default)
                 mEntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            
+            // 防止 MaxPenalty 为负数导致除零或颜色异常
+            if (MaxPenalty <= 0) MaxPenalty = 0;
 
             if (ShowGrid)
             {
@@ -79,6 +97,15 @@ namespace Athomield.AStar
                             // 默认颜色：可通行=GridColor，不可通行=红色
                             Gizmos.color = nodes[index].Node.IsAccessible ? GridColor : Color.red;
 
+                            
+                            // 惩罚热力图颜色覆盖（Play Mode 下，CheckObstaclesSystem 运行后才有数据）
+                            if(ShowPenalties && Application.isPlaying)
+                            {
+                                // 归一化：penC ∈ [0,1]，对应灰度（0=黑=无惩罚，1=白=最大惩罚）
+                                float penC = nodes[index].Node.Penalty / (float)MaxPenalty;
+                                Gizmos.color = new Color(penC, penC, penC);
+                            }
+                            
                             // 绘制节点填充方块（高度 0.1f 使其贴近地面但仍可见）
                             Gizmos.DrawCube(
                                 startCorner + Vector3.right * ((x * grid.NodeSize * 2 + grid.NodeSize) / 2)
