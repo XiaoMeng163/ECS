@@ -25,6 +25,8 @@ public struct MyASNode
     public int Y;
     /// <summary>节点是否可通行（false 表示被障碍物占据）</summary>
     public bool IsAccessible;
+    /// <summary> 该节点的寻路额外代价 </summary>
+    public int Penalty;
 }
 
 // ECS 的 IComponentData 要求数据适合 ECS 的原生、非托管数据布局。
