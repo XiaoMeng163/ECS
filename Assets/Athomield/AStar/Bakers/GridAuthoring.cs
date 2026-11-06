@@ -46,6 +46,9 @@ namespace Athomield.AStar
 
                 // 添加 Grid 核心组件
                 AddComponent(entity, grid);
+                
+                AddBuffer<ASNodeIslandIDBufferComponent>(entity);  // 岛屿 ID 缓冲区
+                
                 // 初始化节点数组（NodeXCount × NodeYCount 个节点，全部默认可通行）
                 DynamicBuffer<ASGridNodesBufferComponent> nodes = AddBuffer<ASGridNodesBufferComponent>(entity);
                 nodes.Length = grid.NodeXCount * grid.NodeYCount;

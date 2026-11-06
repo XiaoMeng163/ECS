@@ -36,6 +36,7 @@ public class MyGridAuthoring : MonoBehaviour
 
             //给 entity 添加一个 DynamicBuffer<MyASGridNodeBuffer>，并把这个 Buffer 返回出来。
             DynamicBuffer<MyASGridNodeBuffer> myASGridNodeBuffers = AddBuffer<MyASGridNodeBuffer>(entity);
+            DynamicBuffer<MyASNodeIslandBuffer> myASNodeIslandBuffers = AddBuffer<MyASNodeIslandBuffer>(entity);
             
             //得到网格的总节点数量
             int count = grid.NodeXCount * grid.NodeYCount;
@@ -54,7 +55,8 @@ public class MyGridAuthoring : MonoBehaviour
                         {
                             X = x,
                             Y = y,
-                            IsAccessible = true
+                            IsAccessible = true,
+                            Penalty = 0
                         }
                     };
                 }

@@ -7,6 +7,7 @@ using UnityEngine;
 /// 标记组件：拥有它的 Entity 被认为是障碍物
 /// </summary>
 public struct MyASObstacle : IComponentData
-{
-
+{   
+    /// <summary> 障碍物惩罚值 </summary>
+    public int PenaltyOnObstacleValue;
 }

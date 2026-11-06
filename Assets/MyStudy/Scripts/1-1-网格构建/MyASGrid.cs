@@ -14,6 +14,9 @@ public struct MyASGrid : IComponentData
 
     /// <summary> 障碍物层 </summary>
     public int InaccessibleLayerMask;
+    
+    /// <summary> 请求重新计算网格的连通岛屿 </summary>
+    public bool RefreshIslands;
 }
 
 /// <summary>
@@ -36,4 +39,12 @@ public struct MyASNode
 public struct MyASGridNodeBuffer : IBufferElementData
 {
     public MyASNode Node;
+
+}
+
+[InternalBufferCapacity(0)]
+public struct MyASNodeIslandBuffer : IBufferElementData
+{
+    /// <summary> 该节点所属的岛屿ID </summary>
+    public int IslandID;
 }

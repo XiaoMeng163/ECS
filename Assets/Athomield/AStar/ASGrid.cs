@@ -38,6 +38,12 @@ namespace Athomield.AStar
         /// 将此值设为 true 以重新扫描网格节点可通行性
         /// </summary>
         public bool RefreshGrid;
+        
+        /// <summary>
+        /// 岛屿刷新触发标志。网格刷新后由系统自动置为 true，
+        /// 触发 CheckNodeIslandSystem 重新计算连通区域
+        /// </summary>
+        public bool RefreshIslands;
     }
 
     /// <summary>
@@ -105,6 +111,18 @@ namespace Athomield.AStar
         {
             return X ^ (Y << 16) ^ (Y >> 16);
         }
+    }
+    
+    /// <summary>
+    /// 岛屿 ID 缓冲组件，与 ASGridNodesBufferComponent 索引对应。
+    /// 相同 IslandID 的节点属于同一连通区域（岛屿），
+    /// 由 CheckNodeIslandSystem 通过 BFS/DFS 填充
+    /// </summary>
+    [InternalBufferCapacity(0)]
+    public struct ASNodeIslandIDBufferComponent : IBufferElementData
+    {
+        /// <summary>该节点所属岛屿的编号（从 0 开始递增）</summary>
+        public int IslandID;
     }
 
 }

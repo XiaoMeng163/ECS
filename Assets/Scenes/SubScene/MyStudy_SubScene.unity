@@ -328,8 +328,8 @@ Transform:
   m_GameObject: {fileID: 974071151}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 0, z: -10}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalPosition: {x: -10, y: 0, z: -20}
+  m_LocalScale: {x: 100, y: 10, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -346,6 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PenaltyOnObstacle: 50
 --- !u!1 &1048873032
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,7 +448,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -10, y: 0, z: 10}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 5, y: 5, z: 110}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -464,6 +465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PenaltyOnObstacle: 50
 --- !u!1 &1084675343
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,9 +575,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c1820e8aaa8d2642833affe9755f21a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridColor: {r: 0.26633143, g: 0.5943396, b: 0.4195519, a: 1}
+  GridColor: {r: 0.27451938, g: 0.2775083, b: 0.2924528, a: 1}
   WireColor: {r: 0, g: 0, b: 0, a: 1}
   blockedColor: {r: 1, g: 0, b: 0, a: 1}
+  showPenalties: 0
+  showIslands: 1
+  islandColors:
+  - {r: 0.1459594, g: 0.754717, b: 0.61754966, a: 1}
+  - {r: 0.7529412, g: 0.5465341, b: 0.14509803, a: 1}
+  - {r: 0.7529412, g: 0.14509803, b: 0.55911934, a: 1}
+  - {r: 0.18502176, g: 0.14509803, b: 0.7529412, a: 1}
+  - {r: 0, g: 0.727653, b: 1, a: 1}
+  maxPenalty: 50
 --- !u!1 &1908028058
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,6 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PenaltyOnObstacle: 50
 --- !u!1 &2103699114
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,6 +824,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adf0a64ad81240f4b80ea0e1ea69fb5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PenaltyOnObstacle: 50
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

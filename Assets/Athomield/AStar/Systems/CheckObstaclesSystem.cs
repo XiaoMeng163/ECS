@@ -90,7 +90,8 @@ namespace Athomield.AStar
                     CheckForObstacles(grid.ValueRO, nodes, transform, ref state);
 
                     mHasCheckedForObstacles = true;
-  
+                    // 扫描完成后通知岛屿系统重新计算（岛屿依赖 IsAccessible 数据）
+                    grid.ValueRW.RefreshIslands = true;
                 }
 
                 // ── 网格刷新后强制所有代理重新寻路 ──

@@ -48,6 +48,22 @@ namespace Athomield.AStar
         /// 设置为场景中最大惩罚值可获得最佳对比度（过小则所有节点显示为白色）。
         /// </summary>
         [SerializeField] private int MaxPenalty;
+        
+        /// <summary>
+        /// 是否用颜色区分岛屿（连通区域）。
+        /// 仅在 Play Mode 且 CheckNodeIslandSystem 已完成计算后有效。
+        /// 不同岛屿使用 IslandColors 数组中的对应颜色，数量不够时自动随机生成新颜色。
+        /// </summary>
+        [SerializeField]
+        bool ShowGridIslands;
+
+        /// <summary>
+        /// 各岛屿对应的显示颜色数组。
+        /// 索引 i 对应 IslandID=i 的岛屿颜色。
+        /// 若岛屿数量超过数组长度，会自动调用 GenerateRandomColors 扩容。
+        /// </summary>
+        [SerializeField]
+        Color[] IslandColors;
 
         /// <summary>
         /// Unity 的 Gizmos 绘制回调，每帧（包括 Editor 中）均会调用。
@@ -72,8 +88,9 @@ namespace Athomield.AStar
                 {
                     ASGrid grid = mEntityManager.GetComponentData<ASGrid>(entity);
                     LocalTransform transform = mEntityManager.GetComponentData<LocalTransform>(entity);
-                    DynamicBuffer<ASGridNodesBufferComponent> nodes =
-                        mEntityManager.GetBuffer<ASGridNodesBufferComponent>(entity);
+                    DynamicBuffer<ASGridNodesBufferComponent> nodes = mEntityManager.GetBuffer<ASGridNodesBufferComponent>(entity);
+                    DynamicBuffer<ASNodeIslandIDBufferComponent> nodeIslands = mEntityManager.GetBuffer<ASNodeIslandIDBufferComponent>(entity);
+
 
                     // 计算网格左下角（X-，Z- 方向）的世界坐标（节点绘制的起点参考）
                     Vector3 startCorner = new Vector3(transform.Position.x, transform.Position.y, transform.Position.z)
@@ -97,6 +114,17 @@ namespace Athomield.AStar
                             // 默认颜色：可通行=GridColor，不可通行=红色
                             Gizmos.color = nodes[index].Node.IsAccessible ? GridColor : Color.red;
 
+                            // 岛屿颜色覆盖（Play Mode + 岛屿数据就绪 + 节点可通行）
+                            if(ShowGridIslands && Application.isPlaying && nodeIslands.Length > 0 && nodes[index].Node.IsAccessible)
+                            {
+                                // 若当前岛屿 ID 超出颜色数组范围，自动扩容并随机生成颜色
+                                if(IslandColors.Length - 1 < nodeIslands[index].IslandID)
+                                {
+                                    GenerateRandomColors(nodeIslands[index].IslandID + 1);
+                                }
+
+                                Gizmos.color = IslandColors[nodeIslands[index].IslandID];
+                            }
                             
                             // 惩罚热力图颜色覆盖（Play Mode 下，CheckObstaclesSystem 运行后才有数据）
                             if(ShowPenalties && Application.isPlaying)
@@ -122,6 +150,23 @@ namespace Athomield.AStar
                     }
                 }
                 entities.Dispose();
+            }
+        }
+        
+        /// <summary>
+        /// 将 IslandColors 扩容到 _newLength 并为每个岛屿随机分配一种颜色。
+        /// 在发现新岛屿（IslandID 超出当前数组范围）时自动调用。
+        /// </summary>
+        /// <param name="_newLength">新数组的目标长度（通常 = 最大 IslandID + 1）</param>
+        void GenerateRandomColors(int _newLength)
+        {
+            IslandColors = new Color[_newLength];
+            for (int i = 0; i < _newLength; i++)
+            {
+                IslandColors[i] = new Color(
+                    UnityEngine.Random.Range(0, 1f),
+                    UnityEngine.Random.Range(0, 1f),
+                    UnityEngine.Random.Range(0, 1f));
             }
         }
     }
